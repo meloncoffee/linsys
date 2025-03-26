@@ -1,13 +1,31 @@
-KERNEL_DIR := /lib/modules/$(shell uname -r)/build
+DEBUG ?= 0
+KDIR := /lib/modules/$(shell uname -r)/build
 PWD  := $(shell pwd)
-SRC_DIR  := $(PWD)/src/kernel
+KERNEL_SRC_DIR  := $(PWD)/src/kernel
+USER_SRC_DIR := $(PWD)/src/user
 BUILD_DIR := $(PWD)/build
 
-all:
+KERNEL_MODULE_NAME := linsys_defender
+USER_MODULE_NAME := linsys_manager
+
+all: kernel user
+
+kernel:
 	@mkdir -p $(BUILD_DIR)
-	$(MAKE) -C $(KERNEL_DIR) M=$(SRC_DIR) modules
-	@mv -f $(SRC_DIR)/*.ko $(BUILD_DIR)/
+	$(MAKE) -C $(KDIR) M=$(KERNEL_SRC_DIR) modules \
+		KERNEL_MODULE_NAME=$(KERNEL_MODULE_NAME) \
+		DEBUG=$(DEBUG)
+	@cp -f $(KERNEL_SRC_DIR)/*.ko $(BUILD_DIR)/
+
+user:
+	@mkdir -p $(BUILD_DIR)
+	$(MAKE) -C $(USER_SRC_DIR) \
+		USER_MODULE_NAME=$(USER_MODULE_NAME) \
+		DEBUG=$(DEBUG)
+	@cp -f $(USER_SRC_DIR)/$(USER_MODULE_NAME) $(BUILD_DIR)/
 
 clean:
-	$(MAKE) -C $(KERNEL_DIR) M=$(SRC_DIR) clean
+	$(MAKE) -C $(KDIR) M=$(KERNEL_SRC_DIR) clean
+	$(MAKE) -C $(USER_SRC_DIR) clean \
+		USER_MODULE_NAME=$(USER_MODULE_NAME)
 	@rm -rf $(BUILD_DIR)
