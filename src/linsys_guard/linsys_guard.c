@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include "common/config.h"
 #include "common/define.h"
+#include "common/log.h"
 #include "common/process.h"
 
 /*==== LOCAL DEFINES ========================================================*/
@@ -87,7 +88,7 @@ int main(int argc, char *argv[])
 
     /* 명령어 존재유무 체크 */
     if (optind >= argc) {
-        fprintf(stderr, "[WARN] Please input command: start|stop|debug\n");
+        PRINT_WARN("Please input command: start|stop|debug");
         exit(0);
     }
 
@@ -104,13 +105,13 @@ int main(int argc, char *argv[])
 
     }
     else {
-        fprintf(stderr, "[WARN] Invalid Command: %s\n", argv[optind]);
+        PRINT_WARN("Invalid Command: %s", argv[optind]);
         exit(0);
     }
 
     /* 현재 실행 중인 프로세스의 경로를 작업 디렉토리로 변경 */
     if (-1 == change_working_directory()) {
-        fprintf(stderr, "[ERROR] Failed to change working directory\n");
+        PRINT_ERROR("Failed to change working directory");
         exit(1);
     }
 
